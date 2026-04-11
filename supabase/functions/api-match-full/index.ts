@@ -76,11 +76,16 @@ Deno.serve(async (req) => {
 
     // 3. Insert match players (lineups) if provided
     if (players && Array.isArray(players) && players.length > 0) {
-      const playersToInsert = players.map((p: any) => ({
-        match_id: newMatch.id,
-        player_id: p.player_id,
-        team_id: p.team_id,
-      }));
+      // Deduplicate by player_id (keep last entry) to avoid upsert conflict
+      const uniqueMap = new Map<string, any>();
+      for (const p of players) {
+        uniqueMap.set(p.player_id, {
+          match_id: newMatch.id,
+          player_id: p.player_id,
+          team_id: p.team_id,
+        });
+      }
+      const playersToInsert = Array.from(uniqueMap.values());
 
       const { data, error } = await supabase
         .from("match_players")
