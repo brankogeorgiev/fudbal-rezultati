@@ -119,6 +119,15 @@ export const translations = {
     lineup: "Постава",
     matchNotFound: "Натпреварот не е пронајден",
     noGoals: "Без голови",
+
+    // Player details
+    playerDetails: "Детали за играч",
+    playerNotFound: "Играчот не е пронајден",
+    matchHistory: "Историја на натпревари",
+    playedFor: "Игра за",
+    noMatchesPlayed: "Нема одиграни натпревари",
+    goalsShort: "Г",
+    ownGoalsShort: "АГ",
     
     // Statistics - additional
     w: "П",
@@ -292,6 +301,15 @@ export const translations = {
     lineup: "Lineup",
     matchNotFound: "Match not found",
     noGoals: "No goals",
+
+    // Player details
+    playerDetails: "Player Details",
+    playerNotFound: "Player not found",
+    matchHistory: "Match History",
+    playedFor: "Played for",
+    noMatchesPlayed: "No matches played",
+    goalsShort: "G",
+    ownGoalsShort: "OG",
     
     // Statistics - additional
     w: "W",

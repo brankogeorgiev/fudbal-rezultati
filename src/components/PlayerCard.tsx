@@ -7,12 +7,17 @@ interface PlayerCardProps {
   defaultTeamName?: string | null;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onOpen?: (id: string) => void;
   showActions?: boolean;
 }
 
-const PlayerCard = ({ id, name, defaultTeamName, onEdit, onDelete, showActions = true }: PlayerCardProps) => {
+const PlayerCard = ({ id, name, defaultTeamName, onEdit, onDelete, onOpen, showActions = true }: PlayerCardProps) => {
   return (
-    <div className="result-card animate-fade-in">
+    <div
+      className="result-card animate-fade-in cursor-pointer"
+      onClick={() => onOpen?.(id)}
+      role={onOpen ? "button" : undefined}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -31,14 +36,14 @@ const PlayerCard = ({ id, name, defaultTeamName, onEdit, onDelete, showActions =
         {showActions && (
           <div className="flex items-center gap-1">
             <button
-              onClick={() => onEdit(id)}
+              onClick={(e) => { e.stopPropagation(); onEdit(id); }}
               className="icon-button-edit"
               aria-label="Edit player"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onDelete(id)}
+              onClick={(e) => { e.stopPropagation(); onDelete(id); }}
               className="icon-button-delete"
               aria-label="Delete player"
             >

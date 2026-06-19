@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -25,6 +26,7 @@ const Players = () => {
   const [deletePlayerId, setDeletePlayerId] = useState<string | null>(null);
   const { user, isAdmin } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const { data: players, isLoading: playersLoading } = usePlayers();
   const { data: teams, isLoading: teamsLoading } = useTeams();
@@ -112,8 +114,10 @@ const Players = () => {
                 defaultTeamName={player.default_team?.name}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onOpen={(id) => navigate(`/player/${id}`)}
                 showActions={isAdmin}
               />
+
             ))
           ) : (
             <div className="text-center py-12">
