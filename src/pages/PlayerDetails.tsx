@@ -117,6 +117,8 @@ const PlayerDetails = () => {
           matchDate: match.match_date,
           homeTeamName: match.home_team?.name || "—",
           awayTeamName: match.away_team?.name || "—",
+          homeTeamId: match.home_team_id,
+          awayTeamId: match.away_team_id,
           homeScore: match.home_score,
           awayScore: match.away_score,
           playedForTeamId,
