@@ -45,6 +45,14 @@ const PlayerDetails = () => {
     return `${getFullDayName(date)}, ${getMonthName(date)} ${format(date, "d")}, ${format(date, "yyyy")}`;
   };
 
+  const getResult = (row: PlayerMatchRow): "W" | "L" | "D" => {
+    if (row.homeScore === row.awayScore) return "D";
+    const playedHome = row.playedForTeamId === row.homeTeamId;
+    const playerScore = playedHome ? row.homeScore : row.awayScore;
+    const oppScore = playedHome ? row.awayScore : row.homeScore;
+    return playerScore > oppScore ? "W" : "L";
+  };
+
   const { data: player, isLoading: playerLoading } = useQuery({
     queryKey: ["player", id],
     queryFn: async () => {
