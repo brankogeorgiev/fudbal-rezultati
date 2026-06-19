@@ -238,9 +238,10 @@ const MatchDetails = () => {
                     homeGoals.map((goal) => {
                       const ownGoal = isOwnGoal(goal.id);
                       return (
-                        <div
+                        <button
                           key={goal.id}
-                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 ${
+                          onClick={() => goal.player?.id && navigate(`/player/${goal.player.id}`)}
+                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 w-full text-left hover:bg-muted/50 transition-colors ${
                             ownGoal ? "bg-destructive/20 border border-destructive/50" : ""
                           }`}
                         >
@@ -253,7 +254,7 @@ const MatchDetails = () => {
                             {goal.player?.name || "Unknown"}
                             {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
                           </span>
-                        </div>
+                        </button>
                       );
                     })
                   ) : (
@@ -270,9 +271,10 @@ const MatchDetails = () => {
                     awayGoals.map((goal) => {
                       const ownGoal = isOwnGoal(goal.id);
                       return (
-                        <div
+                        <button
                           key={goal.id}
-                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 ${
+                          onClick={() => goal.player?.id && navigate(`/player/${goal.player.id}`)}
+                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 w-full text-left hover:bg-muted/50 transition-colors ${
                             ownGoal ? "bg-destructive/20 border border-destructive/50" : ""
                           }`}
                         >
@@ -285,7 +287,7 @@ const MatchDetails = () => {
                             {goal.player?.name || "Unknown"}
                             {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
                           </span>
-                        </div>
+                        </button>
                       );
                     })
                   ) : (
