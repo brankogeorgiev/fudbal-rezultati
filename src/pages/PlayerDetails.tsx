@@ -16,6 +16,8 @@ interface PlayerMatchRow {
   matchDate: string;
   homeTeamName: string;
   awayTeamName: string;
+  homeTeamId: string;
+  awayTeamId: string;
   homeScore: number;
   awayScore: number;
   playedForTeamId: string;
@@ -43,6 +45,14 @@ const PlayerDetails = () => {
 
   const formatLocalizedDate = (date: Date) => {
     return `${getFullDayName(date)}, ${getMonthName(date)} ${format(date, "d")}, ${format(date, "yyyy")}`;
+  };
+
+  const getResult = (row: PlayerMatchRow): "W" | "L" | "D" => {
+    if (row.homeScore === row.awayScore) return "D";
+    const playedHome = row.playedForTeamId === row.homeTeamId;
+    const playerScore = playedHome ? row.homeScore : row.awayScore;
+    const oppScore = playedHome ? row.awayScore : row.homeScore;
+    return playerScore > oppScore ? "W" : "L";
   };
 
   const { data: player, isLoading: playerLoading } = useQuery({
@@ -107,6 +117,8 @@ const PlayerDetails = () => {
           matchDate: match.match_date,
           homeTeamName: match.home_team?.name || "—",
           awayTeamName: match.away_team?.name || "—",
+          homeTeamId: match.home_team_id,
+          awayTeamId: match.away_team_id,
           homeScore: match.home_score,
           awayScore: match.away_score,
           playedForTeamId,
@@ -160,51 +172,62 @@ const PlayerDetails = () => {
               <Skeleton key={i} className="h-20 w-full rounded-lg" />
             ))
           ) : rows && rows.length > 0 ? (
-            rows.map((row) => (
-              <button
-                key={row.matchId}
-                onClick={() => navigate(`/match/${row.matchId}`)}
-                className="result-card w-full text-left animate-fade-in"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  {/* Teams + result */}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-medium text-foreground truncate">{row.homeTeamName}</span>
-                    <span className={`px-2 py-0.5 rounded font-bold text-sm ${
-                      row.homeScore > row.awayScore ? "bg-green-500 text-white"
-                      : row.homeScore < row.awayScore ? "bg-red-500 text-white"
-                      : "bg-yellow-500 text-white"
-                    }`}>{row.homeScore}</span>
-                    <span className="text-muted-foreground">:</span>
-                    <span className={`px-2 py-0.5 rounded font-bold text-sm ${
-                      row.awayScore > row.homeScore ? "bg-green-500 text-white"
-                      : row.awayScore < row.homeScore ? "bg-red-500 text-white"
-                      : "bg-yellow-500 text-white"
-                    }`}>{row.awayScore}</span>
-                    <span className="font-medium text-foreground truncate">{row.awayTeamName}</span>
-                  </div>
-                </div>
+            rows.map((row) => {
+              const result = getResult(row);
+              const resultColor =
+                result === "W" ? "bg-green-500" : result === "L" ? "bg-red-500" : "bg-muted-foreground";
+              const homeBold = row.playedForTeamId === row.homeTeamId ? "font-bold" : "font-medium";
+              const awayBold = row.playedForTeamId === row.awayTeamId ? "font-bold" : "font-medium";
+              const matchDate = new Date(row.matchDate);
+              return (
+                <button
+                  key={row.matchId}
+                  onClick={() => navigate(`/match/${row.matchId}`)}
+                  className="result-card w-full text-left animate-fade-in"
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Date column */}
+                    <div className="flex flex-col items-center justify-center w-14 shrink-0 text-muted-foreground">
+                      <span className="text-xs font-medium leading-tight">{format(matchDate, "dd/MM/yy")}</span>
+                      <span className="text-xs">FT</span>
+                    </div>
 
-                <div className="flex items-center flex-wrap gap-2 mt-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {formatLocalizedDate(new Date(row.matchDate))}
-                  </span>
-                  <Badge variant="secondary" className="text-xs">
-                    {t("playedFor")}: {row.playedForTeamName}
-                  </Badge>
-                  <span className="flex items-center gap-1 text-foreground font-medium">
-                    <Target className="w-3 h-3 text-primary" />
-                    {row.goals} {t("goalsShort")}
-                  </span>
-                  {row.ownGoals > 0 && (
-                    <span className="flex items-center gap-1 text-destructive font-medium">
-                      {row.ownGoals} {t("ownGoalsShort")}
+                    {/* Teams + scores */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-foreground truncate ${homeBold}`}>{row.homeTeamName}</span>
+                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 mt-1">
+                        <span className={`text-foreground truncate ${awayBold}`}>{row.awayTeamName}</span>
+                        <span className={`text-foreground tabular-nums ${awayBold}`}>{row.awayScore}</span>
+                      </div>
+                    </div>
+
+                    {/* Result badge */}
+                    <div className={`shrink-0 w-8 h-8 rounded-full ${resultColor} flex items-center justify-center text-white font-bold text-sm`}>
+                      {result}
+                    </div>
+                  </div>
+
+                  {/* Player contribution */}
+                  <div className="flex items-center flex-wrap gap-2 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+                    <Badge variant="secondary" className="text-xs">
+                      {t("playedFor")}: {row.playedForTeamName}
+                    </Badge>
+                    <span className="flex items-center gap-1 text-foreground font-medium">
+                      <Target className="w-3 h-3 text-primary" />
+                      {row.goals} {t("goalsShort")}
                     </span>
-                  )}
-                </div>
-              </button>
-            ))
+                    {row.ownGoals > 0 && (
+                      <span className="flex items-center gap-1 text-destructive font-medium">
+                        {row.ownGoals} {t("ownGoalsShort")}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground">{t("noMatchesPlayed")}</p>
