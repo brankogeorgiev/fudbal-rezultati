@@ -16,6 +16,8 @@ interface PlayerMatchRow {
   matchDate: string;
   homeTeamName: string;
   awayTeamName: string;
+  homeTeamId: string;
+  awayTeamId: string;
   homeScore: number;
   awayScore: number;
   playedForTeamId: string;
