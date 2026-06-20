@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Calendar, Target } from "lucide-react";
+import { ArrowLeft, User, Target, CircleDot } from "lucide-react";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -179,6 +179,7 @@ const PlayerDetails = () => {
               const homeBold = row.playedForTeamId === row.homeTeamId ? "font-bold" : "font-medium";
               const awayBold = row.playedForTeamId === row.awayTeamId ? "font-bold" : "font-medium";
               const matchDate = new Date(row.matchDate);
+              const hasStats = row.goals > 0 || row.ownGoals > 0;
               return (
                 <button
                   key={row.matchId}
@@ -204,26 +205,30 @@ const PlayerDetails = () => {
                       </div>
                     </div>
 
-                    {/* Result badge */}
-                    <div className={`shrink-0 w-8 h-8 rounded-full ${resultColor} flex items-center justify-center text-white font-bold text-sm`}>
-                      {result}
-                    </div>
-                  </div>
+                    {/* Stats + result */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {hasStats && (
+                        <div className="flex items-center gap-1.5">
+                          {row.goals > 0 && (
+                            <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
+                              <Target className="w-3 h-3 text-primary" />
+                              {row.goals}
+                            </span>
+                          )}
+                          {row.ownGoals > 0 && (
+                            <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
+                              <CircleDot className="w-3 h-3" />
+                              {row.ownGoals}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                  {/* Player contribution */}
-                  <div className="flex items-center flex-wrap gap-2 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
-                    <Badge variant="secondary" className="text-xs">
-                      {t("playedFor")}: {row.playedForTeamName}
-                    </Badge>
-                    <span className="flex items-center gap-1 text-foreground font-medium">
-                      <Target className="w-3 h-3 text-primary" />
-                      {row.goals} {t("goalsShort")}
-                    </span>
-                    {row.ownGoals > 0 && (
-                      <span className="flex items-center gap-1 text-destructive font-medium">
-                        {row.ownGoals} {t("ownGoalsShort")}
-                      </span>
-                    )}
+                      {/* Result badge */}
+                      <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
+                        {result}
+                      </div>
+                    </div>
                   </div>
                 </button>
               );
