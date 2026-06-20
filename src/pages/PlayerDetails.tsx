@@ -42,10 +42,6 @@ const PlayerDetails = () => {
     return t(monthKeys[monthIndex]);
   };
 
-  const formatLocalizedDate = (date: Date) => {
-    return `${getFullDayName(date)}, ${getMonthName(date)} ${format(date, "d")}, ${format(date, "yyyy")}`;
-  };
-
   const getResult = (row: PlayerMatchRow): "W" | "L" | "D" => {
     if (row.homeScore === row.awayScore) return "D";
     const playedHome = row.playedForTeamId === row.homeTeamId;
