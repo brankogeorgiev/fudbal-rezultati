@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Target, CircleDot } from "lucide-react";
+import { ArrowLeft, User, Target, CircleDot, Shield } from "lucide-react";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -174,7 +174,8 @@ const PlayerDetails = () => {
               const homeBold = row.playedForTeamId === row.homeTeamId ? "font-bold" : "font-medium";
               const awayBold = row.playedForTeamId === row.awayTeamId ? "font-bold" : "font-medium";
               const matchDate = new Date(row.matchDate);
-              const hasStats = row.goals > 0 || row.ownGoals > 0;
+              const teamGoals =
+                row.playedForTeamId === row.homeTeamId ? row.homeScore : row.awayScore;
               return (
                 <button
                   key={row.matchId}
@@ -202,22 +203,25 @@ const PlayerDetails = () => {
 
                     {/* Stats + result */}
                     <div className="flex items-center gap-2 shrink-0">
-                      {hasStats && (
-                        <div className="flex items-center gap-1.5">
-                          {row.goals > 0 && (
-                            <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
-                              <Target className="w-3 h-3 text-primary" />
-                              {row.goals}
-                            </span>
-                          )}
-                          {row.ownGoals > 0 && (
-                            <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
-                              <CircleDot className="w-3 h-3" />
-                              {row.ownGoals}
-                            </span>
-                          )}
-                        </div>
+                      {/* Player goals + OGs */}
+                      {row.goals > 0 && (
+                        <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
+                          <Target className="w-3 h-3 text-primary" />
+                          {row.goals}
+                        </span>
                       )}
+                      {row.ownGoals > 0 && (
+                        <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
+                          <CircleDot className="w-3 h-3" />
+                          {row.ownGoals}
+                        </span>
+                      )}
+
+                      {/* Team goals */}
+                      <span className="flex items-center gap-0.5 text-muted-foreground font-semibold text-xs">
+                        <Shield className="w-3 h-3" />
+                        {teamGoals}
+                      </span>
 
                       {/* Result badge */}
                       <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
