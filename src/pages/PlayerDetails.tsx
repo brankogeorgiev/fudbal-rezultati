@@ -174,7 +174,6 @@ const PlayerDetails = () => {
               const homeBold = row.playedForTeamId === row.homeTeamId ? "font-bold" : "font-medium";
               const awayBold = row.playedForTeamId === row.awayTeamId ? "font-bold" : "font-medium";
               const matchDate = new Date(row.matchDate);
-              const hasStats = row.goals > 0 || row.ownGoals > 0;
               const teamGoals =
                 row.playedForTeamId === row.homeTeamId ? row.homeScore : row.awayScore;
               return (
