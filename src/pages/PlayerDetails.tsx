@@ -187,36 +187,39 @@ const PlayerDetails = () => {
                       <span className="text-xs">FT</span>
                     </div>
 
-                    {/* Teams + scores */}
+                    {/* Team names */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className={`text-foreground truncate ${homeBold}`}>{row.homeTeamName}</span>
-                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-2 mt-1">
-                        <span className={`text-foreground truncate ${awayBold}`}>{row.awayTeamName}</span>
-                        <span className={`text-foreground tabular-nums ${awayBold}`}>{row.awayScore}</span>
-                      </div>
+                      <div className={`text-foreground truncate ${homeBold}`}>{row.homeTeamName}</div>
+                      <div className={`text-foreground truncate mt-1 ${awayBold}`}>{row.awayTeamName}</div>
                     </div>
 
-                    {/* Player stats + result */}
-                    <div className="flex flex-col items-end justify-center gap-1 shrink-0">
-                      <div className="flex items-center gap-1.5">
-                        {row.goals > 0 && (
-                          <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
-                            <Target className="w-3 h-3 text-primary" />
-                            {row.goals}
-                          </span>
-                        )}
-                        {row.ownGoals > 0 && (
-                          <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
-                            <CircleDot className="w-3 h-3" />
-                            {row.ownGoals}
-                          </span>
-                        )}
+                    {/* Scores, player stats + result */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      {/* Scores */}
+                      <div className="flex flex-col items-end justify-center">
+                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
+                        <span className={`text-foreground tabular-nums mt-1 ${awayBold}`}>{row.awayScore}</span>
                       </div>
-                      <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
-                        {result}
+
+                      {/* Player stats + result */}
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="flex items-center gap-1.5">
+                          {row.goals > 0 && (
+                            <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
+                              <Target className="w-3 h-3 text-primary" />
+                              {row.goals}
+                            </span>
+                          )}
+                          {row.ownGoals > 0 && (
+                            <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
+                              <CircleDot className="w-3 h-3" />
+                              {row.ownGoals}
+                            </span>
+                          )}
+                        </div>
+                        <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
+                          {result}
+                        </div>
                       </div>
                     </div>
                   </div>
