@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Target, CircleDot, Shield } from "lucide-react";
+import { ArrowLeft, User, Target, CircleDot } from "lucide-react";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
