@@ -217,10 +217,9 @@ const PlayerDetails = () => {
                         </span>
                       )}
 
-                      {/* Team goals */}
-                      <span className="flex items-center gap-0.5 text-muted-foreground font-semibold text-xs">
-                        <Shield className="w-3 h-3" />
-                        {teamGoals}
+                      {/* Match score */}
+                      <span className="text-foreground font-semibold text-xs tabular-nums">
+                        {row.homeScore}-{row.awayScore}
                       </span>
 
                       {/* Result badge */}
