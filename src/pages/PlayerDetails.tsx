@@ -194,16 +194,13 @@ const PlayerDetails = () => {
                     </div>
 
                     {/* Scores, player stats + result */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      {/* Scores */}
-                      <div className="flex flex-col items-end justify-center">
-                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
-                        <span className={`text-foreground tabular-nums mt-1 ${awayBold}`}>{row.awayScore}</span>
-                      </div>
+                    <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1 items-center shrink-0">
+                      {/* Home score */}
+                      <span className={`text-foreground tabular-nums text-right ${homeBold}`}>{row.homeScore}</span>
 
-                      {/* Player stats + result */}
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="flex items-center gap-1.5">
+                      {/* Player stats + result on the middle row */}
+                      {(row.goals > 0 || row.ownGoals > 0) && (
+                        <div className="row-span-2 flex items-center gap-1.5 justify-center">
                           {row.goals > 0 && (
                             <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
                               <Target className="w-3 h-3 text-primary" />
@@ -217,10 +214,26 @@ const PlayerDetails = () => {
                             </span>
                           )}
                         </div>
-                        <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
+                      )}
+
+                      {/* Placeholder for the result badge cell when no player stats */}
+                      {(row.goals === 0 && row.ownGoals === 0) && (
+                        <div className="row-span-2 flex items-center justify-center">
+                          <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
+                            {result}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Away score */}
+                      <span className={`text-foreground tabular-nums text-right ${awayBold}`}>{row.awayScore}</span>
+
+                      {/* Result badge */}
+                      {(row.goals > 0 || row.ownGoals > 0) && (
+                        <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs row-span-2`}>
                           {result}
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </button>
