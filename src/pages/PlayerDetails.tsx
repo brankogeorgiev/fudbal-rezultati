@@ -194,35 +194,26 @@ const PlayerDetails = () => {
                     </div>
 
                     {/* Scores, player stats + result */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      {/* Scores */}
-                      <div className="flex flex-col items-end justify-center">
-                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
-                        <span className={`text-foreground tabular-nums mt-1 ${awayBold}`}>{row.awayScore}</span>
-                      </div>
-
-                      {/* Player stats + result */}
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="invisible text-xs">{row.homeScore}</div>
-                        <div className="flex items-center gap-1.5 my-0.5">
-                          {row.goals > 0 && (
-                            <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
-                              <Target className="w-3 h-3 text-primary" />
-                              {row.goals}
-                            </span>
-                          )}
-                          {row.ownGoals > 0 && (
-                            <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
-                              <CircleDot className="w-3 h-3" />
-                              {row.ownGoals}
-                            </span>
-                          )}
-                          <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
-                            {result}
-                          </div>
+                    <div className="grid grid-cols-2 gap-x-2 items-center shrink-0">
+                      <span className={`text-foreground tabular-nums text-right ${homeBold}`}>{row.homeScore}</span>
+                      <div className="row-span-2 flex items-center gap-1.5 justify-center">
+                        {row.goals > 0 && (
+                          <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
+                            <Target className="w-3 h-3 text-primary" />
+                            {row.goals}
+                          </span>
+                        )}
+                        {row.ownGoals > 0 && (
+                          <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
+                            <CircleDot className="w-3 h-3" />
+                            {row.ownGoals}
+                          </span>
+                        )}
+                        <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
+                          {result}
                         </div>
-                        <div className="invisible text-xs">{row.awayScore}</div>
                       </div>
+                      <span className={`text-foreground tabular-nums text-right ${awayBold}`}>{row.awayScore}</span>
                     </div>
                   </div>
                 </button>
