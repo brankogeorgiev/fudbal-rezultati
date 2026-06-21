@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Target, CircleDot, Shield } from "lucide-react";
+import { ArrowLeft, User, Target, CircleDot } from "lucide-react";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -174,8 +174,6 @@ const PlayerDetails = () => {
               const homeBold = row.playedForTeamId === row.homeTeamId ? "font-bold" : "font-medium";
               const awayBold = row.playedForTeamId === row.awayTeamId ? "font-bold" : "font-medium";
               const matchDate = new Date(row.matchDate);
-              const teamGoals =
-                row.playedForTeamId === row.homeTeamId ? row.homeScore : row.awayScore;
               return (
                 <button
                   key={row.matchId}
@@ -217,10 +215,9 @@ const PlayerDetails = () => {
                         </span>
                       )}
 
-                      {/* Team goals */}
-                      <span className="flex items-center gap-0.5 text-muted-foreground font-semibold text-xs">
-                        <Shield className="w-3 h-3" />
-                        {teamGoals}
+                      {/* Match score */}
+                      <span className="text-foreground font-semibold text-xs tabular-nums">
+                        {row.homeScore}-{row.awayScore}
                       </span>
 
                       {/* Result badge */}
