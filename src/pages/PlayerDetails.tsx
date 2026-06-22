@@ -193,10 +193,10 @@ const PlayerDetails = () => {
                       <div className={`text-foreground truncate mt-1 ${awayBold}`}>{row.awayTeamName}</div>
                     </div>
 
-                    {/* Scores, player stats + result */}
-                    <div className="grid grid-cols-2 gap-x-2 items-center shrink-0">
-                      <span className={`text-foreground tabular-nums text-right ${homeBold}`}>{row.homeScore}</span>
-                      <div className="row-span-2 flex items-center gap-1.5 justify-center">
+                    {/* Player stats, scores, result */}
+                    <div className="grid grid-cols-3 gap-x-3 items-center shrink-0">
+                      {/* Left: player goals + own goals */}
+                      <div className="flex items-center gap-1.5 justify-center">
                         {row.goals > 0 && (
                           <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
                             <Target className="w-3 h-3 text-primary" />
@@ -209,11 +209,20 @@ const PlayerDetails = () => {
                             {row.ownGoals}
                           </span>
                         )}
+                      </div>
+
+                      {/* Middle: team scores */}
+                      <div className="flex flex-col items-center justify-center">
+                        <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
+                        <span className={`text-foreground tabular-nums mt-1 ${awayBold}`}>{row.awayScore}</span>
+                      </div>
+
+                      {/* Right: W/D/L result */}
+                      <div className="flex items-center justify-center">
                         <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
                           {result}
                         </div>
                       </div>
-                      <span className={`text-foreground tabular-nums text-right ${awayBold}`}>{row.awayScore}</span>
                     </div>
                   </div>
                 </button>
