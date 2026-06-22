@@ -194,9 +194,9 @@ const PlayerDetails = () => {
                     </div>
 
                     {/* Player stats, scores, result */}
-                    <div className="grid grid-cols-3 gap-x-3 items-center shrink-0">
+                    <div className="flex items-center gap-4 shrink-0">
                       {/* Left: player goals + own goals */}
-                      <div className="flex items-center gap-1.5 justify-center">
+                      <div className="w-16 flex items-center justify-center gap-1.5">
                         {row.goals > 0 && (
                           <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
                             <Target className="w-3 h-3 text-primary" />
@@ -212,13 +212,13 @@ const PlayerDetails = () => {
                       </div>
 
                       {/* Middle: team scores */}
-                      <div className="flex flex-col items-center justify-center">
+                      <div className="w-10 flex flex-col items-center justify-center">
                         <span className={`text-foreground tabular-nums ${homeBold}`}>{row.homeScore}</span>
                         <span className={`text-foreground tabular-nums mt-1 ${awayBold}`}>{row.awayScore}</span>
                       </div>
 
                       {/* Right: W/D/L result */}
-                      <div className="flex items-center justify-center">
+                      <div className="w-10 flex items-center justify-center">
                         <div className={`px-2 py-1 rounded-md ${resultColor} flex items-center justify-center text-white font-bold text-xs`}>
                           {result}
                         </div>
