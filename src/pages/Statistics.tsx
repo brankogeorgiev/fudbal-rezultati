@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Trophy, Volleyball, Users, CalendarIcon, Filter } from "lucide-react";
+import { Trophy, Users, CalendarIcon, Filter } from "lucide-react";
+import FootballIcon from "@/components/icons/FootballIcon";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
