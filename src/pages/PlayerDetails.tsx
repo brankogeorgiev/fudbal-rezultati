@@ -194,9 +194,9 @@ const PlayerDetails = () => {
                     </div>
 
                     {/* Player stats, scores, result */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       {/* Left: player goals + own goals */}
-                      <div className="w-16 flex items-center justify-center gap-1.5">
+                      <div className="w-16 flex items-center justify-end gap-1.5">
                         {row.goals > 0 && (
                           <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
                             <Target className="w-3 h-3 text-primary" />
