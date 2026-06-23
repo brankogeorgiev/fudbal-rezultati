@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Trophy, Volleyball, Users, CalendarIcon, Filter } from "lucide-react";
+import { Trophy, Users, CalendarIcon, Filter } from "lucide-react";
+import FootballIcon from "@/components/icons/FootballIcon";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -516,7 +517,7 @@ const Statistics = () => {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Volleyball className="w-4 h-4 text-primary" />
+                  <FootballIcon className="w-4 h-4 text-primary" />
                   {t("topScorers")}
                 </CardTitle>
               </CardHeader>
@@ -580,7 +581,7 @@ const Statistics = () => {
             <Card className="border-destructive/30">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Volleyball className="w-4 h-4 text-destructive" />
+                  <FootballIcon className="w-4 h-4 text-destructive" />
                   {t("ownGoals")}
                 </CardTitle>
               </CardHeader>
