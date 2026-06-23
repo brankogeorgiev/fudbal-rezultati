@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Volleyball } from "lucide-react";
+import { ArrowLeft, User } from "lucide-react";
+import FootballIcon from "@/components/icons/FootballIcon";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -199,13 +200,13 @@ const PlayerDetails = () => {
                       <div className="w-16 flex items-center justify-end gap-1.5">
                         {row.goals > 0 && (
                           <span className="flex items-center gap-0.5 text-foreground font-semibold text-xs">
-                            <Volleyball className="w-3 h-3 text-primary" />
+                            <FootballIcon className="w-3 h-3 text-primary" />
                             {row.goals}
                           </span>
                         )}
                         {row.ownGoals > 0 && (
                           <span className="flex items-center gap-0.5 text-destructive font-semibold text-xs">
-                            <Volleyball className="w-3 h-3" />
+                            <FootballIcon className="w-3 h-3" />
                             {row.ownGoals}
                           </span>
                         )}
