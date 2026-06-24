@@ -1,4 +1,5 @@
 import { User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Player {
   id: string;
@@ -55,6 +56,7 @@ const ViewOnlyPitch = ({
   awayPlayers,
   allPlayers,
 }: ViewOnlyPitchProps) => {
+  const navigate = useNavigate();
   const getPlayerName = (playerId: string) => {
     const player = allPlayers.find((p) => p.id === playerId);
     return player?.name || "Player";
@@ -95,16 +97,20 @@ const ViewOnlyPitch = ({
           top: `${position.y}%`,
         }}
       >
-        <div className="flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => navigate(`/player/${player.id}`)}
+          className="flex flex-col items-center cursor-pointer focus:outline-none"
+        >
           <div
-            className={`w-9 h-9 rounded-full ${bgColor} flex items-center justify-center shadow-lg border-2`}
+            className={`w-9 h-9 rounded-full ${bgColor} flex items-center justify-center shadow-lg border-2 transition-transform hover:scale-110`}
           >
             <User className={`w-5 h-5 ${textColor}`} />
           </div>
           <span className="text-[10px] text-white font-medium mt-0.5 bg-black/40 px-1.5 py-0.5 rounded whitespace-nowrap">
             {getPlayerName(player.id)}
           </span>
-        </div>
+        </button>
       </div>
     );
   };
