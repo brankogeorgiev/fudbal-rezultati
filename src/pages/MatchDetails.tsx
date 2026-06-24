@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar } from "lucide-react";
-import FootballIcon from "@/components/icons/FootballIcon";
+import { ArrowLeft, Calendar, User } from "lucide-react";
 import { format, getDay, getMonth } from "date-fns";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -249,7 +248,7 @@ const MatchDetails = () => {
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                             ownGoal ? "bg-destructive" : "bg-team-home"
                           }`}>
-                            <FootballIcon className={`w-3 h-3 ${ownGoal ? "text-white" : "text-purple-600"}`} />
+                            <User className={`w-3 h-3 ${ownGoal ? "text-white" : "text-purple-600"}`} />
                           </div>
                           <span className={ownGoal ? "text-destructive font-medium" : ""}>
                             {goal.player?.name || "Unknown"}
@@ -282,7 +281,7 @@ const MatchDetails = () => {
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                             ownGoal ? "bg-destructive" : "bg-team-away"
                           }`}>
-                            <FootballIcon className={`w-3 h-3 text-white`} />
+                            <User className={`w-3 h-3 text-white`} />
                           </div>
                           <span className={ownGoal ? "text-destructive font-medium" : ""}>
                             {goal.player?.name || "Unknown"}
