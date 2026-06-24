@@ -603,11 +603,11 @@ const AddResultDialog = ({
                     <div className="text-xs text-muted-foreground text-center mb-2">
                       {awayTeam?.name || "Away"}
                     </div>
-                    {awayGoals.map((playerId, index) => {
+                    {getGroupedGoals("away").map(({ playerId, count }) => {
                       const ownGoal = isOwnGoal(playerId, "away");
                       return (
                         <div
-                          key={`away-${playerId}-${index}`}
+                          key={`away-${playerId}`}
                           className={cn(
                             "flex items-center gap-2 rounded-full px-3 py-1.5",
                             ownGoal 
@@ -616,7 +616,7 @@ const AddResultDialog = ({
                           )}
                         >
                           <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center",
+                            "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
                             ownGoal ? "bg-destructive" : "bg-team-away"
                           )}>
                             <User className="w-3 h-3 text-white" />
@@ -628,12 +628,30 @@ const AddResultDialog = ({
                             {getPlayerName(playerId)}
                             {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
                           </span>
-                          <button
-                            onClick={() => removeGoal("away", index)}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => decrementGoal("away", playerId)}
+                              className="w-5 h-5 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-foreground"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="text-sm font-bold w-4 text-center">{count}</span>
+                            <button
+                              type="button"
+                              onClick={() => incrementGoal("away", playerId)}
+                              className="w-5 h-5 rounded-full bg-background flex items-center justify-center text-muted-foreground hover:text-foreground"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeAllGoalsForPlayer("away", playerId)}
+                              className="text-muted-foreground hover:text-destructive ml-1"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
