@@ -320,6 +320,57 @@ const AddResultDialog = ({
     }
   };
 
+  // Group goals by player, preserving first-appearance order, with counts
+  const getGroupedGoals = (team: "home" | "away") => {
+    const goals = team === "home" ? homeGoals : awayGoals;
+    const order: string[] = [];
+    const counts = new Map<string, number>();
+    goals.forEach((playerId) => {
+      if (!counts.has(playerId)) order.push(playerId);
+      counts.set(playerId, (counts.get(playerId) || 0) + 1);
+    });
+    return order.map((playerId) => ({ playerId, count: counts.get(playerId) || 0 }));
+  };
+
+  const incrementGoal = (team: "home" | "away", playerId: string) => {
+    if (team === "home") {
+      const newGoals = [...homeGoals, playerId];
+      setHomeGoals(newGoals);
+      if (newGoals.length > homeScore) setHomeScore(newGoals.length);
+    } else {
+      const newGoals = [...awayGoals, playerId];
+      setAwayGoals(newGoals);
+      if (newGoals.length > awayScore) setAwayScore(newGoals.length);
+    }
+  };
+
+  const decrementGoal = (team: "home" | "away", playerId: string) => {
+    if (team === "home") {
+      const lastIndex = homeGoals.lastIndexOf(playerId);
+      if (lastIndex === -1) return;
+      setHomeGoals((prev) => prev.filter((_, i) => i !== lastIndex));
+      setHomeScore((prev) => Math.max(0, prev - 1));
+    } else {
+      const lastIndex = awayGoals.lastIndexOf(playerId);
+      if (lastIndex === -1) return;
+      setAwayGoals((prev) => prev.filter((_, i) => i !== lastIndex));
+      setAwayScore((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  const removeAllGoalsForPlayer = (team: "home" | "away", playerId: string) => {
+    if (team === "home") {
+      const removed = homeGoals.filter((id) => id === playerId).length;
+      setHomeGoals((prev) => prev.filter((id) => id !== playerId));
+      setHomeScore((prev) => Math.max(0, prev - removed));
+    } else {
+      const removed = awayGoals.filter((id) => id === playerId).length;
+      setAwayGoals((prev) => prev.filter((id) => id !== playerId));
+      setAwayScore((prev) => Math.max(0, prev - removed));
+    }
+  };
+
+
   const adjustScore = (team: "home" | "away", delta: number) => {
     if (team === "home") {
       const newScore = Math.max(0, homeScore + delta);
