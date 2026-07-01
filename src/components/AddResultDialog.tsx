@@ -554,7 +554,7 @@ const AddResultDialog = ({
                             <User className="w-3 h-3 text-white" />
                           </div>
                           <span className={cn(
-                            "text-sm flex-1 truncate",
+                            "text-sm flex-1",
                             ownGoal && "text-destructive font-medium"
                           )}>
                             {getPlayerName(playerId)}
