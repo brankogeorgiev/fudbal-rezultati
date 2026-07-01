@@ -529,7 +529,7 @@ const AddResultDialog = ({
               {/* Goal scorers section */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Goal Scorers</Label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {/* Home goals */}
                   <div className="space-y-2">
                     <div className="text-xs text-muted-foreground text-center mb-2">
