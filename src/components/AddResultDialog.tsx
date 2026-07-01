@@ -420,7 +420,7 @@ const AddResultDialog = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-2xl max-h-[95vh] p-0 gap-0">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-2xl max-h-[95vh] p-0 gap-0 rounded-2xl">
           <DialogHeader className="p-4 pb-2">
             <DialogTitle className="font-display text-xl text-center">
               {editMatch ? t("editResult") : t("addAResult")}
@@ -541,14 +541,20 @@ const AddResultDialog = ({
                         <div
                           key={`home-${playerId}`}
                           className={cn(
-                            "flex items-center gap-2 rounded-full px-3 py-1.5",
+                            "flex items-center gap-2 rounded-full px-3 py-1.5 min-w-0",
                             ownGoal 
                               ? "bg-destructive/20 border-2 border-destructive/50" 
                               : "bg-muted"
                           )}
                         >
+                          <div className={cn(
+                            "w-6 h-6 rounded-full items-center justify-center shrink-0 hidden sm:flex",
+                            ownGoal ? "bg-destructive" : "bg-team-home"
+                          )}>
+                            <User className="w-3 h-3 text-white" />
+                          </div>
                           <span className={cn(
-                            "text-sm flex-1",
+                            "text-sm flex-1 min-w-0 truncate",
                             ownGoal && "text-destructive font-medium"
                           )}>
                             {getPlayerName(playerId)}
@@ -603,14 +609,20 @@ const AddResultDialog = ({
                         <div
                           key={`away-${playerId}`}
                           className={cn(
-                            "flex items-center gap-2 rounded-full px-3 py-1.5",
+                            "flex items-center gap-2 rounded-full px-3 py-1.5 min-w-0",
                             ownGoal 
                               ? "bg-destructive/20 border-2 border-destructive/50" 
                               : "bg-muted"
                           )}
                         >
+                          <div className={cn(
+                            "w-6 h-6 rounded-full items-center justify-center shrink-0 hidden sm:flex",
+                            ownGoal ? "bg-destructive" : "bg-team-away"
+                          )}>
+                            <User className="w-3 h-3 text-white" />
+                          </div>
                           <span className={cn(
-                            "text-sm flex-1",
+                            "text-sm flex-1 min-w-0 truncate",
                             ownGoal && "text-destructive font-medium"
                           )}>
                             {getPlayerName(playerId)}
