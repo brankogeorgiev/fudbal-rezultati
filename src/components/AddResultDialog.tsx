@@ -420,7 +420,7 @@ const AddResultDialog = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md max-h-[95vh] p-0 gap-0">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-2xl max-h-[95vh] p-0 gap-0">
           <DialogHeader className="p-4 pb-2">
             <DialogTitle className="font-display text-xl text-center">
               {editMatch ? t("editResult") : t("addAResult")}
