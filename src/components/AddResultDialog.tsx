@@ -541,14 +541,20 @@ const AddResultDialog = ({
                         <div
                           key={`home-${playerId}`}
                           className={cn(
-                            "flex items-center gap-2 rounded-full px-3 py-1.5",
+                            "flex items-center gap-2 rounded-full px-3 py-1.5 min-w-0",
                             ownGoal 
                               ? "bg-destructive/20 border-2 border-destructive/50" 
                               : "bg-muted"
                           )}
                         >
+                          <div className={cn(
+                            "w-6 h-6 rounded-full items-center justify-center shrink-0 hidden sm:flex",
+                            ownGoal ? "bg-destructive" : "bg-team-home"
+                          )}>
+                            <User className="w-3 h-3 text-white" />
+                          </div>
                           <span className={cn(
-                            "text-sm flex-1",
+                            "text-sm flex-1 min-w-0 truncate",
                             ownGoal && "text-destructive font-medium"
                           )}>
                             {getPlayerName(playerId)}
