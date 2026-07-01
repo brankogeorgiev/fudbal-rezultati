@@ -547,12 +547,6 @@ const AddResultDialog = ({
                               : "bg-muted"
                           )}
                         >
-                          <div className={cn(
-                            "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
-                            ownGoal ? "bg-destructive" : "bg-team-home"
-                          )}>
-                            <User className="w-3 h-3 text-white" />
-                          </div>
                           <span className={cn(
                             "text-sm flex-1",
                             ownGoal && "text-destructive font-medium"
