@@ -228,68 +228,54 @@ const MatchDetails = () => {
               <CardTitle className="text-base">{t("goalScorers")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {/* Home goals */}
-                <div className="space-y-2">
-                  <div className="text-xs text-muted-foreground font-medium mb-2">
+                <div className="space-y-2 min-w-0">
+                  <div className="text-xs text-muted-foreground font-medium text-center mb-2">
                     {match.home_team?.name}
                   </div>
-                  {homeGoals.length > 0 ? (
-                    homeGoals.map((goal) => {
-                      const ownGoal = isOwnGoal(goal.id);
-                      return (
-                        <button
-                          key={goal.id}
-                          onClick={() => goal.player?.id && navigate(`/player/${goal.player.id}`)}
-                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 w-full text-left hover:bg-muted/50 transition-colors ${
-                            ownGoal ? "bg-destructive/20 border border-destructive/50" : ""
-                          }`}
-                        >
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                            ownGoal ? "bg-destructive" : "bg-team-home"
-                          }`}>
-                            <User className={`w-3 h-3 ${ownGoal ? "text-white" : "text-purple-600"}`} />
-                          </div>
-                          <span className={ownGoal ? "text-destructive font-medium" : ""}>
-                            {goal.player?.name || "Unknown"}
-                            {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
-                          </span>
-                        </button>
-                      );
-                    })
+                  {groupedHomeGoals.length > 0 ? (
+                    groupedHomeGoals.map(({ playerId, name, count, ownGoal }) => (
+                      <button
+                        key={`home-${playerId}-${ownGoal}`}
+                        onClick={() => playerId && navigate(`/player/${playerId}`)}
+                        className={`flex items-center gap-2 rounded-full px-3 py-1.5 w-full text-left min-w-0 hover:bg-muted/70 transition-colors ${
+                          ownGoal ? "bg-destructive/20 border-2 border-destructive/50" : "bg-muted"
+                        }`}
+                      >
+                        <span className={`text-sm flex-1 min-w-0 truncate ${ownGoal ? "text-destructive font-medium" : ""}`}>
+                          {name}
+                          {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
+                        </span>
+                        <span className="text-sm font-bold shrink-0">×{count}</span>
+                      </button>
+                    ))
                   ) : (
                     <span className="text-sm text-muted-foreground">{t("noGoals")}</span>
                   )}
                 </div>
 
                 {/* Away goals */}
-                <div className="space-y-2">
-                  <div className="text-xs text-muted-foreground font-medium mb-2">
+                <div className="space-y-2 min-w-0">
+                  <div className="text-xs text-muted-foreground font-medium text-center mb-2">
                     {match.away_team?.name}
                   </div>
-                  {awayGoals.length > 0 ? (
-                    awayGoals.map((goal) => {
-                      const ownGoal = isOwnGoal(goal.id);
-                      return (
-                        <button
-                          key={goal.id}
-                          onClick={() => goal.player?.id && navigate(`/player/${goal.player.id}`)}
-                          className={`flex items-center gap-2 text-sm rounded-full px-2 py-1 w-full text-left hover:bg-muted/50 transition-colors ${
-                            ownGoal ? "bg-destructive/20 border border-destructive/50" : ""
-                          }`}
-                        >
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                            ownGoal ? "bg-destructive" : "bg-team-away"
-                          }`}>
-                            <User className={`w-3 h-3 text-white`} />
-                          </div>
-                          <span className={ownGoal ? "text-destructive font-medium" : ""}>
-                            {goal.player?.name || "Unknown"}
-                            {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
-                          </span>
-                        </button>
-                      );
-                    })
+                  {groupedAwayGoals.length > 0 ? (
+                    groupedAwayGoals.map(({ playerId, name, count, ownGoal }) => (
+                      <button
+                        key={`away-${playerId}-${ownGoal}`}
+                        onClick={() => playerId && navigate(`/player/${playerId}`)}
+                        className={`flex items-center gap-2 rounded-full px-3 py-1.5 w-full text-left min-w-0 hover:bg-muted/70 transition-colors ${
+                          ownGoal ? "bg-destructive/20 border-2 border-destructive/50" : "bg-muted"
+                        }`}
+                      >
+                        <span className={`text-sm flex-1 min-w-0 truncate ${ownGoal ? "text-destructive font-medium" : ""}`}>
+                          {name}
+                          {ownGoal && <span className="ml-1 text-xs">(OG)</span>}
+                        </span>
+                        <span className="text-sm font-bold shrink-0">×{count}</span>
+                      </button>
+                    ))
                   ) : (
                     <span className="text-sm text-muted-foreground">{t("noGoals")}</span>
                   )}
