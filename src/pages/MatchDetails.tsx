@@ -147,6 +147,29 @@ const MatchDetails = () => {
     return (goal as any)?.is_own_goal === true;
   };
 
+  const groupGoals = (teamGoals: typeof homeGoals) => {
+    const map = new Map<string, { playerId: string; name: string; count: number; ownGoal: boolean }>();
+    teamGoals.forEach((goal) => {
+      const ownGoal = (goal as any)?.is_own_goal === true;
+      const key = `${goal.player?.id}-${ownGoal}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(key, {
+          playerId: goal.player?.id || "",
+          name: goal.player?.name || "Unknown",
+          count: 1,
+          ownGoal,
+        });
+      }
+    });
+    return Array.from(map.values());
+  };
+
+  const groupedHomeGoals = groupGoals(homeGoals);
+  const groupedAwayGoals = groupGoals(awayGoals);
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <Header />
