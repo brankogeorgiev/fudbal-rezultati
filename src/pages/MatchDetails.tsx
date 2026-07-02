@@ -251,7 +251,7 @@ const MatchDetails = () => {
               <CardTitle className="text-base">{t("goalScorers")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Home goals */}
                 <div className="space-y-2 min-w-0">
                   <div className="text-xs text-muted-foreground font-medium text-center mb-2">
