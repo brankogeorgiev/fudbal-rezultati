@@ -62,9 +62,24 @@ Deno.serve(async (req) => {
     if (req.method === "POST") {
       const body = await req.json();
       const { home_team_id, away_team_id, home_score, away_score, match_date } = body;
-      
-      if (!home_team_id || !away_team_id) {
-        return new Response(JSON.stringify({ error: "Home and away team IDs are required" }), {
+
+      if (!isValidUuid(home_team_id) || !isValidUuid(away_team_id)) {
+        return new Response(JSON.stringify({ error: "Valid home and away team IDs are required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (match_date !== undefined && match_date !== null && !isValidDateString(match_date)) {
+        return new Response(JSON.stringify({ error: "Invalid match date" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (
+        (home_score !== undefined && home_score !== null && !isValidScore(home_score)) ||
+        (away_score !== undefined && away_score !== null && !isValidScore(away_score))
+      ) {
+        return new Response(JSON.stringify({ error: "Scores must be non-negative integers" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
