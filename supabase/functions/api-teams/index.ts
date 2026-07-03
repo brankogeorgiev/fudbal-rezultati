@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sanitizeError, validateName, isValidUuid } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,10 +53,9 @@ Deno.serve(async (req) => {
     // POST - Create team
     if (req.method === "POST") {
       const body = await req.json();
-      const { name } = body;
-      
-      if (!name) {
-        return new Response(JSON.stringify({ error: "Name is required" }), {
+      const nameCheck = validateName(body?.name);
+      if (!nameCheck.ok) {
+        return new Response(JSON.stringify({ error: nameCheck.error }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
 
       const { data, error } = await supabase
         .from("teams")
-        .insert({ name })
+        .insert({ name: nameCheck.value })
         .select()
         .single();
       
@@ -76,19 +76,25 @@ Deno.serve(async (req) => {
 
     // PUT - Update team
     if (req.method === "PUT") {
-      if (!teamId) {
-        return new Response(JSON.stringify({ error: "Team ID is required" }), {
+      if (!isValidUuid(teamId)) {
+        return new Response(JSON.stringify({ error: "Valid Team ID is required" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       const body = await req.json();
-      const { name } = body;
+      const nameCheck = validateName(body?.name);
+      if (!nameCheck.ok) {
+        return new Response(JSON.stringify({ error: nameCheck.error }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const { data, error } = await supabase
         .from("teams")
-        .update({ name })
+        .update({ name: nameCheck.value })
         .eq("id", teamId)
         .select()
         .single();
@@ -126,8 +132,7 @@ Deno.serve(async (req) => {
 
   } catch (error: unknown) {
     console.error("Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: sanitizeError(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

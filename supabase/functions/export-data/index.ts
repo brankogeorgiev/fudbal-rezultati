@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sanitizeError } from "../_shared/security.ts";
 import * as XLSX from "https://esm.sh/xlsx@0.18.5";
 
 const corsHeaders = {
@@ -127,10 +128,9 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Export error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
+      JSON.stringify({ success: false, error: sanitizeError(error) }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

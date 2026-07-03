@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sanitizeError, isValidUuid } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,6 +62,15 @@ Deno.serve(async (req) => {
       
       // Support both single and batch
       if (Array.isArray(body)) {
+        const invalid = body.some(
+          (mp) => !isValidUuid(mp?.match_id) || !isValidUuid(mp?.player_id) || !isValidUuid(mp?.team_id),
+        );
+        if (invalid) {
+          return new Response(JSON.stringify({ error: "Each entry requires valid match_id, player_id, and team_id" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
         const matchPlayers = body.map(mp => ({
           match_id: mp.match_id,
           player_id: mp.player_id,
@@ -79,9 +89,9 @@ Deno.serve(async (req) => {
         });
       } else {
         const { match_id, player_id, team_id } = body;
-        
-        if (!match_id || !player_id || !team_id) {
-          return new Response(JSON.stringify({ error: "match_id, player_id, and team_id are required" }), {
+
+        if (!isValidUuid(match_id) || !isValidUuid(player_id) || !isValidUuid(team_id)) {
+          return new Response(JSON.stringify({ error: "Valid match_id, player_id, and team_id are required" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -140,8 +150,7 @@ Deno.serve(async (req) => {
 
   } catch (error: unknown) {
     console.error("Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: sanitizeError(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
