@@ -53,10 +53,10 @@ Deno.serve(async (req) => {
     // POST - Create player
     if (req.method === "POST") {
       const body = await req.json();
-      const { name, default_team_id } = body;
-      
-      if (!name) {
-        return new Response(JSON.stringify({ error: "Name is required" }), {
+      const { default_team_id } = body;
+      const nameCheck = validateName(body?.name);
+      if (!nameCheck.ok) {
+        return new Response(JSON.stringify({ error: nameCheck.error }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
 
       const { data, error } = await supabase
         .from("players")
-        .insert({ name, default_team_id })
+        .insert({ name: nameCheck.value, default_team_id })
         .select(`*, default_team:teams(id, name)`)
         .single();
       
