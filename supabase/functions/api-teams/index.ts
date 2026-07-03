@@ -76,19 +76,25 @@ Deno.serve(async (req) => {
 
     // PUT - Update team
     if (req.method === "PUT") {
-      if (!teamId) {
-        return new Response(JSON.stringify({ error: "Team ID is required" }), {
+      if (!isValidUuid(teamId)) {
+        return new Response(JSON.stringify({ error: "Valid Team ID is required" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       const body = await req.json();
-      const { name } = body;
+      const nameCheck = validateName(body?.name);
+      if (!nameCheck.ok) {
+        return new Response(JSON.stringify({ error: nameCheck.error }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const { data, error } = await supabase
         .from("teams")
-        .update({ name })
+        .update({ name: nameCheck.value })
         .eq("id", teamId)
         .select()
         .single();
