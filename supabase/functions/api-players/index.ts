@@ -85,11 +85,18 @@ Deno.serve(async (req) => {
       }
 
       const body = await req.json();
-      const { name, default_team_id } = body;
+      const { default_team_id } = body;
+      const nameCheck = validateName(body?.name);
+      if (!nameCheck.ok) {
+        return new Response(JSON.stringify({ error: nameCheck.error }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const { data, error } = await supabase
         .from("players")
-        .update({ name, default_team_id })
+        .update({ name: nameCheck.value, default_team_id })
         .eq("id", playerId)
         .select(`*, default_team:teams(id, name)`)
         .single();
