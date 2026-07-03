@@ -89,9 +89,9 @@ Deno.serve(async (req) => {
         });
       } else {
         const { match_id, player_id, team_id } = body;
-        
-        if (!match_id || !player_id || !team_id) {
-          return new Response(JSON.stringify({ error: "match_id, player_id, and team_id are required" }), {
+
+        if (!isValidUuid(match_id) || !isValidUuid(player_id) || !isValidUuid(team_id)) {
+          return new Response(JSON.stringify({ error: "Valid match_id, player_id, and team_id are required" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
