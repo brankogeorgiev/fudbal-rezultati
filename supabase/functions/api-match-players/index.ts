@@ -62,6 +62,15 @@ Deno.serve(async (req) => {
       
       // Support both single and batch
       if (Array.isArray(body)) {
+        const invalid = body.some(
+          (mp) => !isValidUuid(mp?.match_id) || !isValidUuid(mp?.player_id) || !isValidUuid(mp?.team_id),
+        );
+        if (invalid) {
+          return new Response(JSON.stringify({ error: "Each entry requires valid match_id, player_id, and team_id" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
         const matchPlayers = body.map(mp => ({
           match_id: mp.match_id,
           player_id: mp.player_id,
