@@ -63,11 +63,20 @@ Deno.serve(async (req) => {
       // Support both single goal and batch goals
       if (Array.isArray(body)) {
         // Batch insert
+        const invalid = body.some(
+          (g) => !isValidUuid(g?.match_id) || !isValidUuid(g?.player_id) || !isValidUuid(g?.team_id),
+        );
+        if (invalid) {
+          return new Response(JSON.stringify({ error: "Each goal requires valid match_id, player_id, and team_id" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
         const goals = body.map(g => ({
           match_id: g.match_id,
           player_id: g.player_id,
           team_id: g.team_id,
-          is_own_goal: g.is_own_goal ?? false,
+          is_own_goal: g.is_own_goal === true,
         }));
         
         const { data, error } = await supabase
