@@ -110,8 +110,8 @@ Deno.serve(async (req) => {
 
     // PUT - Update match
     if (req.method === "PUT") {
-      if (!matchId) {
-        return new Response(JSON.stringify({ error: "Match ID is required" }), {
+      if (!isValidUuid(matchId)) {
+        return new Response(JSON.stringify({ error: "Valid Match ID is required" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -119,6 +119,31 @@ Deno.serve(async (req) => {
 
       const body = await req.json();
       const { home_team_id, away_team_id, home_score, away_score, match_date } = body;
+
+      if (
+        (home_team_id !== undefined && home_team_id !== null && !isValidUuid(home_team_id)) ||
+        (away_team_id !== undefined && away_team_id !== null && !isValidUuid(away_team_id))
+      ) {
+        return new Response(JSON.stringify({ error: "Invalid team ID" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (match_date !== undefined && match_date !== null && !isValidDateString(match_date)) {
+        return new Response(JSON.stringify({ error: "Invalid match date" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (
+        (home_score !== undefined && home_score !== null && !isValidScore(home_score)) ||
+        (away_score !== undefined && away_score !== null && !isValidScore(away_score))
+      ) {
+        return new Response(JSON.stringify({ error: "Scores must be non-negative integers" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const { data, error } = await supabase
         .from("matches")
