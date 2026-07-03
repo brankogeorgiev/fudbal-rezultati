@@ -266,8 +266,8 @@ const MatchDetails = () => {
                           ownGoal ? "bg-destructive/20 border-2 border-destructive/50" : "bg-muted"
                         }`}
                       >
-                        <span className={`flex items-center justify-center w-6 h-6 rounded-full shrink-0 ${ownGoal ? "bg-destructive/30" : "bg-primary/20"}`}>
-                          <User className="w-3.5 h-3.5" />
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full shrink-0 bg-team-home shadow-sm">
+                          <User className="w-3.5 h-3.5 text-purple-600" />
                         </span>
                         <span className={`text-sm flex-1 min-w-0 truncate ${ownGoal ? "text-destructive font-medium" : ""}`}>
                           {name}
