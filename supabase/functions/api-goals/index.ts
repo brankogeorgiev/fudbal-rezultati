@@ -92,9 +92,9 @@ Deno.serve(async (req) => {
       } else {
         // Single insert
         const { match_id, player_id, team_id, is_own_goal } = body;
-        
-        if (!match_id || !player_id || !team_id) {
-          return new Response(JSON.stringify({ error: "match_id, player_id, and team_id are required" }), {
+
+        if (!isValidUuid(match_id) || !isValidUuid(player_id) || !isValidUuid(team_id)) {
+          return new Response(JSON.stringify({ error: "Valid match_id, player_id, and team_id are required" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
 
         const { data, error } = await supabase
           .from("goals")
-          .insert({ match_id, player_id, team_id, is_own_goal: is_own_goal ?? false })
+          .insert({ match_id, player_id, team_id, is_own_goal: is_own_goal === true })
           .select(`*, player:players(id, name)`)
           .single();
         
