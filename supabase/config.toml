@@ -2,7 +2,6 @@ project_id = "wgpjnmdbzdszbldmuqpd"
 
 [functions.export-data]
 verify_jwt = false
-schedule = "0 0 * * 0"
 
 [functions.get-users]
 verify_jwt = false
