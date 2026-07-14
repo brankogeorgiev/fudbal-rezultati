@@ -109,6 +109,34 @@ Deno.serve(async (req) => {
 
     console.log(`Successfully exported data to ${filename}`);
 
+    // Cleanup: delete export files older than 3 months
+    let deletedCount = 0;
+    try {
+      const { data: allFiles, error: listError } = await supabase.storage
+        .from("data-exports")
+        .list("", { limit: 1000, sortBy: { column: "created_at", order: "asc" } });
+
+      if (listError) throw listError;
+
+      const cutoff = new Date();
+      cutoff.setMonth(cutoff.getMonth() - 3);
+
+      const toDelete = (allFiles || [])
+        .filter((f) => f.created_at && new Date(f.created_at) < cutoff)
+        .map((f) => f.name);
+
+      if (toDelete.length > 0) {
+        const { error: removeError } = await supabase.storage
+          .from("data-exports")
+          .remove(toDelete);
+        if (removeError) throw removeError;
+        deletedCount = toDelete.length;
+        console.log(`Deleted ${deletedCount} export file(s) older than 3 months`);
+      }
+    } catch (cleanupErr) {
+      console.error("Cleanup error:", cleanupErr);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
