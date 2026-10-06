@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Trophy, User, LogOut, Shield, Menu, LayoutGrid } from "lucide-react";
+import { Trophy, User, LogOut, Shield, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -42,14 +42,13 @@ const Header = () => {
     <Button
       variant="outline"
       size="sm"
-      className="h-9 w-full justify-start gap-2 sm:w-auto"
+      className="h-9 w-full justify-start sm:w-auto"
       onClick={() => {
         setMenuOpen(false);
         navigate("/seasons");
       }}
       title={t("changeSeason")}
     >
-      <LayoutGrid className="w-4 h-4" />
       {t("changeSeason")}
     </Button>
   );
@@ -66,9 +65,9 @@ const Header = () => {
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-primary" />
               </div>
-              <div className="flex items-baseline gap-2 min-w-0">
-                <h1 className="font-display font-bold text-lg text-foreground">{t("football")}</h1>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+              <div className="flex flex-col min-w-0">
+                <h1 className="font-display font-bold text-lg leading-tight text-foreground">{t("football")}</h1>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider whitespace-nowrap leading-tight">
                   {t("resultsSystem")}
                 </p>
               </div>
