@@ -21,13 +21,13 @@ const navItems: NavItem[] = [
 
 const BottomNav = () => {
   const location = useLocation();
-  const { seasonId } = useParams<{ seasonId: string }>();
+  const { seasonName: seasonId } = useParams<{ seasonName: string }>();
   const { t } = useLanguage();
   const { isAdmin } = useAuth();
 
   if (!seasonId) return null;
 
-  const base = `/s/${seasonId}`;
+  const base = `/season/${encodeURIComponent(seasonId ?? "")}`;
   const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (

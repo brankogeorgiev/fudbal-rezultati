@@ -102,7 +102,7 @@ const Landing = () => {
               const matchCount = counts?.[s.id] ?? 0;
               return (
                 <div key={s.id} className="relative group">
-                  <Link to={`/s/${s.id}`} className="block">
+                  <Link to={`/season/${encodeURIComponent(s.name)}`} className="block">
                     <Card className="h-full transition-all group-hover:border-primary/60 group-hover:shadow-md">
                       <CardContent className="p-5">
                         <div className="flex items-start justify-between mb-3">

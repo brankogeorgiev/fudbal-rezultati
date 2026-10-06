@@ -28,12 +28,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/seasons" element={<Landing />} />
-            <Route path="/s/:seasonId" element={<Index />} />
-            <Route path="/s/:seasonId/match/:id" element={<MatchDetails />} />
-            <Route path="/s/:seasonId/players" element={<Players />} />
-            <Route path="/s/:seasonId/player/:id" element={<PlayerDetails />} />
-            <Route path="/s/:seasonId/statistics" element={<Statistics />} />
-            <Route path="/s/:seasonId/exports" element={<Exports />} />
+            <Route path="/season/:seasonName" element={<Index />} />
+            <Route path="/season/:seasonName/match/:id" element={<MatchDetails />} />
+            <Route path="/season/:seasonName/players" element={<Players />} />
+            <Route path="/season/:seasonName/player/:id" element={<PlayerDetails />} />
+            <Route path="/season/:seasonName/statistics" element={<Statistics />} />
+            <Route path="/season/:seasonName/exports" element={<Exports />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/seasons" element={<AdminSeasons />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { seasonId } = useParams<{ seasonId: string }>();
+  const { seasonName: seasonId } = useParams<{ seasonName: string }>();
   const { data: season } = useSeason(seasonId);
   const { data: seasons } = useSeasons();
   const [authOpen, setAuthOpen] = useState(false);
@@ -24,9 +24,9 @@ const Header = () => {
 
   const handleSeasonChange = (newId: string) => {
     if (!newId || newId === seasonId) return;
-    const match = location.pathname.match(/^\/s\/[^/]+(\/.*)?$/);
+    const match = location.pathname.match(/^\/season\/[^/]+(\/.*)?$/);
     const suffix = match?.[1] ?? "";
-    navigate(`/s/${newId}${suffix}`);
+    navigate(`/season/${encodeURIComponent(newId)}${suffix}`);
   };
 
   const handleSignOut = async () => {

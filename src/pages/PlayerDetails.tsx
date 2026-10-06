@@ -28,7 +28,7 @@ interface PlayerMatchRow {
 }
 
 const PlayerDetails = () => {
-  const { id, seasonId } = useParams<{ id: string; seasonId: string }>();
+  const { id, seasonName: seasonId } = useParams<{ id: string; seasonName: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
@@ -185,7 +185,7 @@ const PlayerDetails = () => {
               return (
                 <button
                   key={row.matchId}
-                  onClick={() => navigate(`/s/${seasonId}/match/${row.matchId}`)}
+                  onClick={() => navigate(`/season/${encodeURIComponent(seasonId ?? "")}/match/${row.matchId}`)}
                   className="result-card w-full text-left animate-fade-in"
                 >
                   <div className="flex items-center gap-3">
