@@ -116,18 +116,7 @@ const Header = () => {
                   <SheetTitle>{t("menu")}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 flex flex-col gap-3">
-                  <Button
-                    variant="outline"
-                    className="justify-start gap-2"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/seasons");
-                    }}
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                    {t("chooseSeason")}
-                  </Button>
-                  {seasonSelect}
+                  {seasonButton}
                   <div className="flex items-center justify-between gap-2">
                     <LanguageSwitcher />
                   </div>
