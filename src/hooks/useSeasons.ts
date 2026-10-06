@@ -34,7 +34,7 @@ export const useSeason = (seasonId?: string) => {
       const { data, error } = await supabase
         .from("seasons")
         .select("*")
-        .eq("id", seasonId)
+        .eq("name", seasonId)
         .maybeSingle();
       if (error) throw error;
       return data as Season | null;
@@ -43,9 +43,9 @@ export const useSeason = (seasonId?: string) => {
   });
 };
 
-/** Reads season id from route params `/s/:seasonId/...` and fetches season. */
+/** Reads season id from route params `/season/:seasonName/...` and fetches season. */
 export const useCurrentSeason = () => {
-  const { seasonId } = useParams<{ seasonId: string }>();
+  const { seasonName: seasonId } = useParams<{ seasonName: string }>();
   const query = useSeason(seasonId);
   return { seasonId, ...query };
 };

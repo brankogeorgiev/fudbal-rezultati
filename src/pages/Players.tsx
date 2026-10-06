@@ -30,7 +30,7 @@ const Players = () => {
   const { user, isAdmin } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { seasonId } = useParams<{ seasonId: string }>();
+  const { seasonName: seasonId } = useParams<{ seasonName: string }>();
   const { data: season } = useCurrentSeason();
 
   const { data: players, isLoading: playersLoading } = usePlayers();
@@ -147,7 +147,7 @@ const Players = () => {
                 defaultTeamName={player.default_team?.name}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onOpen={(id) => navigate(`/s/${seasonId}/player/${id}`)}
+                onOpen={(id) => navigate(`/season/${encodeURIComponent(seasonId ?? "")}/player/${id}`)}
                 showActions={isAdmin}
               />
 

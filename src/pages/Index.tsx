@@ -65,7 +65,7 @@ const Index = () => {
   };
 
   const handleView = (id: string) => {
-    navigate(`/s/${seasonId}/match/${id}`);
+    navigate(`/season/${encodeURIComponent(seasonId ?? "")}/match/${id}`);
   };
 
   const handleDelete = (id: string) => {

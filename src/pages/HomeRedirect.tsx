@@ -22,7 +22,7 @@ const HomeRedirect = () => {
     seasons.find((s) => todayIso >= s.start_date && todayIso <= s.end_date) ??
     [...seasons].sort((a, b) => b.start_date.localeCompare(a.start_date))[0];
 
-  return <Navigate to={`/s/${active.id}`} replace />;
+  return <Navigate to={`/season/${encodeURIComponent(active.name)}`} replace />;
 };
 
 export default HomeRedirect;
