@@ -7,9 +7,25 @@ interface LanguageContextType {
   t: (key: TranslationKey) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
 const LANGUAGE_STORAGE_KEY = "app-language";
+
+const getStoredLanguage = (): Language => {
+  try {
+    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return stored === "en" || stored === "mk" ? stored : "mk";
+  } catch {
+    return "mk";
+  }
+};
+
+const defaultContext: LanguageContextType = {
+  language: getStoredLanguage(),
+  setLanguage: () => {},
+  t: (key) => translations[getStoredLanguage()][key] || key,
+};
+
+const LanguageContext = createContext<LanguageContextType>(defaultContext);
+
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -33,10 +49,4 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  return context;
-};
+export const useLanguage = () => useContext(LanguageContext);

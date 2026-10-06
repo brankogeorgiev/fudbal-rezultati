@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Trophy, Users, CalendarIcon, Filter } from "lucide-react";
+import { Trophy, Users, CalendarIcon, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import FootballIcon from "@/components/icons/FootballIcon";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useMatches, useTeams } from "@/hooks/useMatches";
 import { usePlayers } from "@/hooks/usePlayers";
+import { useCurrentSeason } from "@/hooks/useSeasons";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -80,8 +81,16 @@ const Statistics = () => {
   const [selectedTeam2, setSelectedTeam2] = useState<string>("all");
   const [showAllScorers, setShowAllScorers] = useState(false);
   const [showAllOwnGoals, setShowAllOwnGoals] = useState(false);
+  const [scorerSort, setScorerSort] = useState<"goals" | "perMatch">("goals");
+  const [ownGoalSort, setOwnGoalSort] = useState<"goals" | "perMatch">("goals");
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
 
-  const { data: matches, isLoading: matchesLoading } = useMatches();
+  const { data: season } = useCurrentSeason();
+  const seasonRange = season
+    ? { startDate: season.start_date, endDate: season.end_date }
+    : null;
+
+  const { data: matches, isLoading: matchesLoading } = useMatches(seasonRange);
   const { data: teams, isLoading: teamsLoading } = useTeams();
   const { data: players, isLoading: playersLoading } = usePlayers();
   const { data: allGoals, isLoading: goalsLoading } = useAllGoals();
@@ -165,6 +174,19 @@ const Statistics = () => {
     return goal.is_own_goal === true;
   };
 
+  // Appearances per player within filtered matches
+  const appearances = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!allMatchPlayers || !filteredMatches) return map;
+    const matchIds = new Set(filteredMatches.map((m) => m.id));
+    allMatchPlayers.forEach((mp) => {
+      if (matchIds.has(mp.match_id)) {
+        map.set(mp.player_id, (map.get(mp.player_id) || 0) + 1);
+      }
+    });
+    return map;
+  }, [allMatchPlayers, filteredMatches]);
+
   // Calculate top scorers (excluding own goals)
   const topScorers = useMemo(() => {
     if (!allGoals || !players || !filteredMatches) return [];
@@ -185,10 +207,26 @@ const Statistics = () => {
     });
 
     return Array.from(scorerMap.entries())
-      .map(([id, data]) => ({ id, ...data }))
-      .sort((a, b) => b.goals - a.goals)
-      .slice(0, 10);
-  }, [allGoals, players, filteredMatches]);
+      .map(([id, data]) => {
+        const played = appearances.get(id) || 0;
+        return {
+          id,
+          ...data,
+          played,
+          perMatch: played > 0 ? data.goals / played : 0,
+        };
+      })
+      .sort((a, b) => b.goals - a.goals);
+  }, [allGoals, players, filteredMatches, appearances]);
+
+  // Top scorers sorted by the selected metric
+  const sortedScorers = useMemo(() => {
+    return [...topScorers].sort((a, b) =>
+      scorerSort === "perMatch"
+        ? b.perMatch - a.perMatch || b.goals - a.goals
+        : b.goals - a.goals || b.perMatch - a.perMatch
+    );
+  }, [topScorers, scorerSort]);
 
   // Calculate own goals
   const ownGoalScorers = useMemo(() => {
@@ -210,10 +248,26 @@ const Statistics = () => {
     });
 
     return Array.from(scorerMap.entries())
-      .map(([id, data]) => ({ id, ...data }))
-      .sort((a, b) => b.goals - a.goals)
-      .slice(0, 10);
-  }, [allGoals, filteredMatches]);
+      .map(([id, data]) => {
+        const played = appearances.get(id) || 0;
+        return {
+          id,
+          ...data,
+          played,
+          perMatch: played > 0 ? data.goals / played : 0,
+        };
+      })
+      .sort((a, b) => b.goals - a.goals);
+  }, [allGoals, filteredMatches, appearances]);
+
+  // Own goals sorted by the selected metric
+  const sortedOwnGoalScorers = useMemo(() => {
+    return [...ownGoalScorers].sort((a, b) =>
+      ownGoalSort === "perMatch"
+        ? b.perMatch - a.perMatch || b.goals - a.goals
+        : b.goals - a.goals || b.perMatch - a.perMatch
+    );
+  }, [ownGoalScorers, ownGoalSort]);
 
   // Head-to-head stats
   const headToHead = useMemo(() => {
@@ -280,109 +334,121 @@ const Statistics = () => {
 
         {/* Filters */}
         <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              {t("filters")}
+          <CardHeader
+            className="px-6 py-3 cursor-pointer select-none"
+            onClick={() => setFiltersExpanded((prev) => !prev)}
+          >
+            <CardTitle className="text-sm font-medium flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                {t("filters")}
+              </span>
+              {filtersExpanded ? (
+                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Date Range */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">{t("from")}</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {startDate ? format(startDate, "MMM d, yy") : t("start")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      disabled={(date) => date > new Date()}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+          {filtersExpanded && (
+            <CardContent className="space-y-4">
+              {/* Date Range */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">{t("from")}</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-3 w-3" />
+                        {startDate ? format(startDate, "MMM d, yy") : t("start")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">{t("to")}</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-3 w-3" />
+                        {endDate ? format(endDate, "MMM d, yy") : t("end")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        disabled={(date) => date > new Date() || (startDate && date < startDate)}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">{t("to")}</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {endDate ? format(endDate, "MMM d, yy") : t("end")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      disabled={(date) => date > new Date() || (startDate && date < startDate)}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
 
-            {/* Team Selectors for Head-to-Head */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">{t("team1")}</label>
-                <Select value={selectedTeam1} onValueChange={setSelectedTeam1}>
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder={t("allTeams")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("allTeams")}</SelectItem>
-                    {teams?.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Team Selectors for Head-to-Head */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">{t("team1")}</label>
+                  <Select value={selectedTeam1} onValueChange={setSelectedTeam1}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder={t("allTeams")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("allTeams")}</SelectItem>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">{t("team2")}</label>
+                  <Select value={selectedTeam2} onValueChange={setSelectedTeam2}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder={t("allTeams")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t("allTeams")}</SelectItem>
+                      {teams?.filter((t) => t.id !== selectedTeam1).map((team) => (
+                        <SelectItem key={team.id} value={team.id}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">{t("team2")}</label>
-                <Select value={selectedTeam2} onValueChange={setSelectedTeam2}>
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder={t("allTeams")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("allTeams")}</SelectItem>
-                    {teams?.filter((t) => t.id !== selectedTeam1).map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         {isLoading ? (
@@ -514,21 +580,33 @@ const Statistics = () => {
             </Card>
 
             {/* Top Scorers */}
-            <Card>
-              <CardHeader className="pb-2">
+              <Card>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <FootballIcon className="w-4 h-4 text-primary" />
                   {t("topScorers")}
                 </CardTitle>
+                <Select
+                  value={scorerSort}
+                  onValueChange={(v) => setScorerSort(v as "goals" | "perMatch")}
+                >
+                  <SelectTrigger className="h-8 w-auto gap-1 text-xs px-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="goals">{t("sortByGoals")}</SelectItem>
+                    <SelectItem value="perMatch">{t("sortByPerMatch")}</SelectItem>
+                  </SelectContent>
+                </Select>
               </CardHeader>
               <CardContent>
-                {topScorers.length === 0 ? (
+                {sortedScorers.length === 0 ? (
                   <p className="text-center text-muted-foreground py-4">
                     {t("noGoalsScored")}
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {(showAllScorers ? topScorers : topScorers.slice(0, 3)).map((scorer, index) => (
+                    {(showAllScorers ? sortedScorers : sortedScorers.slice(0, 3)).map((scorer, index) => (
                       <div
                         key={scorer.id}
                         className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
@@ -548,16 +626,28 @@ const Statistics = () => {
                           >
                             {index + 1}
                           </span>
-                          <p className="font-medium text-foreground">
-                            {scorer.name}
-                          </p>
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {scorer.name}
+                            </p>
+                            {scorerSort === "perMatch" && (
+                              <p className="text-xs text-muted-foreground">
+                                {scorer.goals} {t("goals")} · {scorer.played}{" "}
+                                {t("matches")}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-bold text-primary">
-                            {scorer.goals}
+                            {scorerSort === "perMatch"
+                              ? scorer.perMatch.toFixed(2)
+                              : scorer.goals}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {t("goals")}
+                            {scorerSort === "perMatch"
+                              ? t("goalsPerMatch")
+                              : t("goals")}
                           </span>
                         </div>
                       </div>
@@ -579,20 +669,32 @@ const Statistics = () => {
 
             {/* Own Goals */}
             <Card className="border-destructive/30">
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
                   <FootballIcon className="w-4 h-4 text-destructive" />
                   {t("ownGoals")}
                 </CardTitle>
+                <Select
+                  value={ownGoalSort}
+                  onValueChange={(v) => setOwnGoalSort(v as "goals" | "perMatch")}
+                >
+                  <SelectTrigger className="h-8 w-auto gap-1 text-xs px-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="goals">{t("sortByGoals")}</SelectItem>
+                    <SelectItem value="perMatch">{t("sortByPerMatch")}</SelectItem>
+                  </SelectContent>
+                </Select>
               </CardHeader>
               <CardContent>
-                {ownGoalScorers.length === 0 ? (
+                {sortedOwnGoalScorers.length === 0 ? (
                   <p className="text-center text-muted-foreground py-4">
                     {t("noOwnGoals")}
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {(showAllOwnGoals ? ownGoalScorers : ownGoalScorers.slice(0, 3)).map((scorer, index) => (
+                    {(showAllOwnGoals ? sortedOwnGoalScorers : sortedOwnGoalScorers.slice(0, 3)).map((scorer, index) => (
                       <div
                         key={scorer.id}
                         className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
@@ -601,21 +703,31 @@ const Statistics = () => {
                           <span className="text-lg font-bold w-6 text-destructive">
                             {index + 1}
                           </span>
-                          <p className="font-medium text-foreground">
-                            {scorer.name}
-                          </p>
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {scorer.name}
+                            </p>
+                            {ownGoalSort === "perMatch" && (
+                              <p className="text-xs text-muted-foreground">
+                                {scorer.goals} OG · {scorer.played}{" "}
+                                {t("matches")}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xl font-bold text-destructive">
-                            {scorer.goals}
+                            {ownGoalSort === "perMatch"
+                              ? scorer.perMatch.toFixed(2)
+                              : scorer.goals}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            OG
+                            {ownGoalSort === "perMatch" ? t("goalsPerMatch") : "OG"}
                           </span>
                         </div>
                       </div>
                     ))}
-                    {ownGoalScorers.length > 3 && (
+                    {sortedOwnGoalScorers.length > 3 && (
                       <Button
                         variant="default"
                         size="sm"

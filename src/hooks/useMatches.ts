@@ -33,11 +33,11 @@ export const useTeams = () => {
   });
 };
 
-export const useMatches = () => {
+export const useMatches = (range?: { startDate: string; endDate: string } | null) => {
   return useQuery({
-    queryKey: ["matches"],
+    queryKey: ["matches", range?.startDate ?? null, range?.endDate ?? null],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("matches")
         .select(`
           *,
@@ -45,9 +45,14 @@ export const useMatches = () => {
           away_team:teams!matches_away_team_id_fkey(id, name)
         `)
         .order("match_date", { ascending: false });
+      if (range) {
+        q = q.gte("match_date", range.startDate).lte("match_date", range.endDate);
+      }
+      const { data, error } = await q;
       if (error) throw error;
       return data as Match[];
     },
+    enabled: range === undefined || range !== null,
   });
 };
 

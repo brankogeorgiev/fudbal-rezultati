@@ -180,4 +180,9 @@
     background-color: hsl(var(--team-away-gk));
     border-color: hsl(var(--team-away-gk-border));
   }
+
+  /* Keep fixed bottom nav aligned with the page when a Radix dialog locks body scroll */
+  [data-scroll-locked] .bottom-nav {
+    padding-right: var(--removed-body-scroll-bar-size, 0px);
+  }
 }

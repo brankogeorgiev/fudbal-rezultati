@@ -15,21 +15,60 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch all data
-    const [teamsRes, playersRes, matchesRes, goalsRes, matchPlayersRes] = await Promise.all([
+    // Optional season filter (start_date, end_date, season_name) — cron calls without a body.
+    let seasonName: string | null = null;
+    let startDate: string | null = null;
+    let endDate: string | null = null;
+    try {
+      if (req.method === "POST") {
+        const body = await req.json().catch(() => null);
+        if (body && typeof body === "object") {
+          if (typeof body.startDate === "string") startDate = body.startDate;
+          if (typeof body.endDate === "string") endDate = body.endDate;
+          if (typeof body.seasonName === "string") seasonName = body.seasonName;
+        }
+      }
+    } catch { /* ignore */ }
+
+    let matchesQuery = supabase
+      .from("matches")
+      .select("*, home_team:teams!home_team_id(name), away_team:teams!away_team_id(name)")
+      .order("match_date", { ascending: false });
+    if (startDate) matchesQuery = matchesQuery.gte("match_date", startDate);
+    if (endDate) matchesQuery = matchesQuery.lte("match_date", endDate);
+
+    const [teamsRes, playersRes, matchesRes] = await Promise.all([
       supabase.from("teams").select("*").order("name"),
       supabase.from("players").select("*, default_team:teams(name)").order("name"),
-      supabase.from("matches").select("*, home_team:teams!home_team_id(name), away_team:teams!away_team_id(name)").order("match_date", { ascending: false }),
-      supabase.from("goals").select("*, player:players(name), team:teams(name), match:matches(match_date)"),
-      supabase.from("match_players").select("*, player:players(name), team:teams(name), match:matches(match_date)"),
+      matchesQuery,
     ]);
 
     if (teamsRes.error) throw teamsRes.error;
     if (playersRes.error) throw playersRes.error;
     if (matchesRes.error) throw matchesRes.error;
+
+    const scopedMatchIds = (matchesRes.data || []).map((m: any) => m.id);
+
+    let goalsQuery = supabase
+      .from("goals")
+      .select("*, player:players(name), team:teams(name), match:matches(match_date)");
+    let mpQuery = supabase
+      .from("match_players")
+      .select("*, player:players(name), team:teams(name), match:matches(match_date)");
+    if (startDate || endDate) {
+      if (scopedMatchIds.length === 0) {
+        goalsQuery = goalsQuery.eq("match_id", "00000000-0000-0000-0000-000000000000");
+        mpQuery = mpQuery.eq("match_id", "00000000-0000-0000-0000-000000000000");
+      } else {
+        goalsQuery = goalsQuery.in("match_id", scopedMatchIds);
+        mpQuery = mpQuery.in("match_id", scopedMatchIds);
+      }
+    }
+    const [goalsRes, matchPlayersRes] = await Promise.all([goalsQuery, mpQuery]);
+
     if (goalsRes.error) throw goalsRes.error;
     if (matchPlayersRes.error) throw matchPlayersRes.error;
 
@@ -93,9 +132,13 @@ Deno.serve(async (req) => {
     // Generate Excel buffer
     const excelBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
-    // Create filename with timestamp
+    // Create filename with timestamp (include season name if provided)
     const now = new Date();
-    const filename = `data-export-${now.toISOString().split("T")[0]}.xlsx`;
+    const dateStr = now.toISOString().split("T")[0];
+    const sanitize = (s: string) => s.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 40);
+    const filename = seasonName
+      ? `data-export-${sanitize(seasonName)}-${dateStr}.xlsx`
+      : `data-export-${dateStr}.xlsx`;
 
     // Upload to storage
     const { error: uploadError } = await supabase.storage
