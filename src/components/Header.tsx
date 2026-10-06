@@ -38,24 +38,21 @@ const Header = () => {
     }
   };
 
-  const seasonSelect =
-    seasonId && seasons && seasons.length > 0 ? (
-      <Select value={seasonId} onValueChange={handleSeasonChange}>
-        <SelectTrigger
-          className="h-9 w-full gap-1.5 border-border/60 bg-background/60 px-2.5 text-xs font-medium sm:w-auto"
-          title={t("changeSeason")}
-        >
-          <SelectValue placeholder={season?.name ?? t("changeSeason")} />
-        </SelectTrigger>
-        <SelectContent align="end">
-          {seasons.map((s) => (
-            <SelectItem key={s.id} value={s.id}>
-              {s.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    ) : null;
+  const seasonButton = (
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-9 w-full justify-start gap-2 sm:w-auto"
+      onClick={() => {
+        setMenuOpen(false);
+        navigate("/seasons");
+      }}
+      title={t("changeSeason")}
+    >
+      <LayoutGrid className="w-4 h-4" />
+      {t("changeSeason")}
+    </Button>
+  );
 
   return (
     <>
@@ -69,32 +66,17 @@ const Header = () => {
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-primary" />
               </div>
-              <div>
+              <div className="flex items-baseline gap-2 min-w-0">
                 <h1 className="font-display font-bold text-lg text-foreground">{t("football")}</h1>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                   {t("resultsSystem")}
                 </p>
               </div>
             </button>
 
-          {/* Mobile season label */}
-          {seasonId && season && (
-            <span className="sm:hidden text-xs text-muted-foreground uppercase tracking-wider truncate max-w-[120px]">
-              {season.name}
-            </span>
-          )}
-
           {/* Desktop / tablet controls */}
           <div className="hidden sm:flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/seasons")}
-              title={t("chooseSeason")}
-            >
-              <LayoutGrid className="w-5 h-5" />
-            </Button>
-            {seasonSelect}
+            {seasonButton}
             <LanguageSwitcher />
             {!loading && (
               <>
