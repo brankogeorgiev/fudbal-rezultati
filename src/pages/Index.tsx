@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import { useCurrentSeason } from "@/hooks/useSeasons";
 import { useAuth } from "@/hooks/useAuth";
 import ResultCard from "@/components/ResultCard";
 import AddResultDialog from "@/components/AddResultDialog";
@@ -34,7 +35,12 @@ const Index = () => {
   const { user, isAdmin } = useAuth();
   const { t } = useLanguage();
 
-  const { data: matches, isLoading: matchesLoading } = useMatches();
+  const { seasonId, data: season } = useCurrentSeason();
+  const seasonRange = season
+    ? { startDate: season.start_date, endDate: season.end_date }
+    : null;
+
+  const { data: matches, isLoading: matchesLoading } = useMatches(seasonRange);
   const { data: teams, isLoading: teamsLoading } = useTeams();
   const { data: players, isLoading: playersLoading } = usePlayers();
   const { data: existingGoals, isLoading: goalsLoading } = useMatchGoals(editMatch?.id || null);
@@ -59,7 +65,7 @@ const Index = () => {
   };
 
   const handleView = (id: string) => {
-    navigate(`/match/${id}`);
+    navigate(`/s/${seasonId}/match/${id}`);
   };
 
   const handleDelete = (id: string) => {

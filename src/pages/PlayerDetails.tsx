@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentSeason } from "@/hooks/useSeasons";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 interface PlayerMatchRow {
@@ -27,7 +28,7 @@ interface PlayerMatchRow {
 }
 
 const PlayerDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, seasonId } = useParams<{ id: string; seasonId: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
@@ -130,6 +131,12 @@ const PlayerDetails = () => {
     enabled: !!id,
   });
 
+  const { data: season } = useCurrentSeason();
+  const filteredRows = rows?.filter((r) => {
+    if (!season) return true;
+    return r.matchDate >= season.start_date && r.matchDate <= season.end_date;
+  });
+
   const isLoading = playerLoading || rowsLoading;
 
   return (
@@ -167,8 +174,8 @@ const PlayerDetails = () => {
             Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-20 w-full rounded-lg" />
             ))
-          ) : rows && rows.length > 0 ? (
-            rows.map((row) => {
+          ) : filteredRows && filteredRows.length > 0 ? (
+            filteredRows.map((row) => {
               const result = getResult(row);
               const resultColor =
                 result === "W" ? "bg-green-500" : result === "L" ? "bg-red-500" : "bg-muted-foreground";
@@ -178,7 +185,7 @@ const PlayerDetails = () => {
               return (
                 <button
                   key={row.matchId}
-                  onClick={() => navigate(`/match/${row.matchId}`)}
+                  onClick={() => navigate(`/s/${seasonId}/match/${row.matchId}`)}
                   className="result-card w-full text-left animate-fade-in"
                 >
                   <div className="flex items-center gap-3">

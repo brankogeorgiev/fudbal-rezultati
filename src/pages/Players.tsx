@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Plus } from "lucide-react";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
@@ -18,6 +18,9 @@ import {
   type Player,
 } from "@/hooks/usePlayers";
 import { useTeams } from "@/hooks/useMatches";
+import { useCurrentSeason } from "@/hooks/useSeasons";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Players = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -27,9 +30,39 @@ const Players = () => {
   const { user, isAdmin } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { seasonId } = useParams<{ seasonId: string }>();
+  const { data: season } = useCurrentSeason();
 
   const { data: players, isLoading: playersLoading } = usePlayers();
   const { data: teams, isLoading: teamsLoading } = useTeams();
+
+  // Fetch player IDs that participated in matches within the season range
+  const { data: seasonPlayerIds } = useQuery({
+    queryKey: ["season-player-ids", season?.id],
+    enabled: !!season,
+    queryFn: async () => {
+      if (!season) return new Set<string>();
+      const { data: matches, error: mErr } = await supabase
+        .from("matches")
+        .select("id")
+        .gte("match_date", season.start_date)
+        .lte("match_date", season.end_date);
+      if (mErr) throw mErr;
+      const matchIds = (matches || []).map((m: any) => m.id);
+      if (matchIds.length === 0) return new Set<string>();
+      const { data: mps, error: mpErr } = await supabase
+        .from("match_players")
+        .select("player_id")
+        .in("match_id", matchIds);
+      if (mpErr) throw mpErr;
+      return new Set((mps || []).map((r: any) => r.player_id));
+    },
+  });
+
+  const filteredPlayers = players?.filter((p) =>
+    seasonPlayerIds ? seasonPlayerIds.has(p.id) : true
+  );
+
   const createPlayer = useCreatePlayer();
   const updatePlayer = useUpdatePlayer();
   const deletePlayer = useDeletePlayer();
@@ -105,8 +138,8 @@ const Players = () => {
                 </div>
               </div>
             ))
-          ) : players && players.length > 0 ? (
-            players.map((player) => (
+          ) : filteredPlayers && filteredPlayers.length > 0 ? (
+            filteredPlayers.map((player) => (
               <PlayerCard
                 key={player.id}
                 id={player.id}
@@ -114,7 +147,7 @@ const Players = () => {
                 defaultTeamName={player.default_team?.name}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onOpen={(id) => navigate(`/player/${id}`)}
+                onOpen={(id) => navigate(`/s/${seasonId}/player/${id}`)}
                 showActions={isAdmin}
               />
 

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useCurrentSeason } from "@/hooks/useSeasons";
 
 interface ExportFile {
   name: string;
@@ -20,6 +21,11 @@ const Exports = () => {
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
   const { t } = useLanguage();
+  const { data: season } = useCurrentSeason();
+
+  const seasonSlug = season
+    ? season.name.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 40)
+    : null;
 
   const fetchExports = async () => {
     setLoading(true);
@@ -31,28 +37,40 @@ const Exports = () => {
       toast.error(t("failedToLoadExports"));
       console.error(error);
     } else {
-      setFiles(data || []);
+      // Filter to files belonging to this season (prefix `data-export-<slug>-`)
+      const all = data || [];
+      const filtered = seasonSlug
+        ? all.filter((f) => f.name.startsWith(`data-export-${seasonSlug}-`))
+        : all;
+      setFiles(filtered);
     }
     setLoading(false);
   };
 
   useEffect(() => {
     fetchExports();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seasonSlug]);
 
   const handleGenerateExport = async () => {
+    if (!season) return;
     setGenerating(true);
     try {
       const today = new Date().toISOString().split("T")[0];
-      const todayFilename = `data-export-${today}.xlsx`;
-      
-      // Check if today's export already exists
-      const existingFile = files.find(f => f.name === todayFilename);
-      
-      const { data, error } = await supabase.functions.invoke("export-data");
-      
+      const todayFilename = `data-export-${seasonSlug}-${today}.xlsx`;
+
+      const existingFile = files.find((f) => f.name === todayFilename);
+
+      const { data, error } = await supabase.functions.invoke("export-data", {
+        body: {
+          startDate: season.start_date,
+          endDate: season.end_date,
+          seasonName: season.name,
+        },
+      });
+
       if (error) throw error;
-      
+
       if (data.success) {
         toast.success(existingFile ? t("exportRefreshed") : t("exportCreated"));
         await fetchExports();
